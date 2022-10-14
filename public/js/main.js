@@ -1,5 +1,7 @@
 //Accesst to the chat form
 const chatForm = document.getElementById('chat-form');
+//get the chat messages div, will use this for auto-scroll to the recent msg
+chatMessages = document.querySelector('.chat-messages');
 const socket = io();
 
 //receiving message from server
@@ -7,6 +9,8 @@ socket.on('message', (message) => {
     console.log(message);
     //for rendering the message from server
     outputMessaage(message);
+    //Auto scroll down to recent message
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
 //handling submission from the chatForm
@@ -17,6 +21,9 @@ chatForm.addEventListener('submit', (e) => {
     //console.log(clientmsg)
     //Emit clientmsg to the server
     socket.emit('chatMessage',clientmsg)
+    //clear the text-field and focus on it
+    e.target.elements.msg.value = '';
+    e.target.elements.msg.focus();
 });
 
 //rendering received msg to DOM
