@@ -15,8 +15,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 //When a client connects
 io.on('connection', (socket) => {
     console.log(`${socket.id} is a new connection....`)
-    //send message to client
+    //send welcome message to client
     socket.emit('message', 'Welcome to chart room')
+    //notify others when a user joins their room
+    socket.broadcast.emit('message', 'A user joined the chat');
+    //also notify when a client disconnects
+    socket.on('disconnect', () => {
+        //notify everyone about the user that left
+        io.emit('message', 'A user left the chat');
+    });
 })
 
 const PORT = process.env.PORT || 5000;
