@@ -2,6 +2,9 @@
 const chatForm = document.getElementById('chat-form');
 //get the chat messages div, will use this for auto-scroll to the recent msg
 chatMessages = document.querySelector('.chat-messages');
+//set the divs for room name and users in the room
+const roomName = document.getElementById('room-name');
+const roomUsers = document.getElementById('users');
 //Get details (usernam and room) from url
 const { username, room } = Qs.parse(location.search, {
     ignoreQueryPrefix: true
@@ -11,6 +14,13 @@ const socket = io();
 
 //join room custom event
 socket.emit('joinRoom', { username, room });
+
+//Get room and its users
+socket.on('roomUsers', ({ room, users }) => {
+    //helper functions for rendering room and it's users
+    outPutRoomName(room);
+    outPutRoomUsers(users);
+});
 
 //receiving message from server
 socket.on('message', (message) => {
@@ -47,5 +57,16 @@ function outputMessaage(message) {
     </p>`;
     //now put it into the DOM
     document.querySelector('.chat-messages').appendChild(div);
+}
 
+// Add room name to DOM
+function outPutRoomName(room) {
+    roomName.innerText = room;
+}
+
+// Add list of users in room to DOM
+function outPutRoomUsers(users) {
+    roomUsers.innerHTML = `
+        ${users.map(user => `<li>${user.username}</li>`).join('')}
+    `;
 }
