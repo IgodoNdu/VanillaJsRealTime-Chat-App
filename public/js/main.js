@@ -2,7 +2,15 @@
 const chatForm = document.getElementById('chat-form');
 //get the chat messages div, will use this for auto-scroll to the recent msg
 chatMessages = document.querySelector('.chat-messages');
+//Get details (usernam and room) from url
+const { username, room } = Qs.parse(location.search, {
+    ignoreQueryPrefix: true
+});
+//console.log(username, room);
 const socket = io();
+
+//join room custom event
+socket.emit('joinRoom', { username, room });
 
 //receiving message from server
 socket.on('message', (message) => {
