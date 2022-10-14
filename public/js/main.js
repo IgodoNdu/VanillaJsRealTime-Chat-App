@@ -33,9 +33,9 @@ function outputMessaage(message) {
     //add a class('message') to the created div
     div.classList.add('message');
     //set it's innerHTML
-    div.innerHTML = `<p class="meta">Emeka <span>9:12pm</span></p>
+    div.innerHTML = `<p class="meta">${message.username} <span>${message.time}</span></p>
     <p class="text">
-        ${message}.
+        ${message.msg}.
     </p>`;
     //now put it into the DOM
     document.querySelector('.chat-messages').appendChild(div);
