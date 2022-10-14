@@ -5,7 +5,7 @@ const socketio = require('socket.io');
 //import the utility function
 const formatMessage = require('./utils/messages');
 //import user management function
-const { addUser, getCurrentUser } = require('./utils/users');
+const { addUser, getCurrentUser, userLeaves, usersInRoom } = require('./utils/users');
 
 const app = express();
 //creating a server instance
@@ -31,6 +31,11 @@ io.on('connection', (socket) => {
         socket.emit('message', formatMessage(botName, `Welcome to ${user.room} chart room ${user.username}`))
         //notify others when a user joins their room
         socket.broadcast.to(user.room).emit('message', formatMessage(botName, `${user.username} joined the chat`));
+        //send update for users and room info
+        io.to(user.room).emit('roomUsers', {
+            room: user.room,
+            users: usersInRoom(user.room),
+        });
     });
     
     //listen for chatMessage from client
@@ -44,8 +49,17 @@ io.on('connection', (socket) => {
 
     //also notify when a client disconnects
     socket.on('disconnect', () => {
-        //notify everyone about the user that left
-        io.emit('message', formatMessage(botName, 'A user left the chat'));
+        //use the helper function for the deserter
+        const user = userLeaves(socket.id);
+        if(user){
+            //notify everyone in this room about the user that left
+            io.to(user.room).emit('message', formatMessage(botName, `${user.username} left the chat`));
+            //update users and room info
+            io.to(user.room).emit('roomUsers', {
+                room: user.room,
+                users: usersInRoom(user.room),
+            });
+        }
     });
 })
 
